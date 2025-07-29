@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Test - FIXED VERSION</title>
+</head>
+<body>
+    <h1>🔧 Image Test - FIXED VERSION</h1>
+
+    <h2>Current Image (should work):</h2>
+    <img src="http://localhost:3000/uploads/1753550902560-shopping.jpeg" alt="Current Image" style="border: 2px solid green; max-width: 300px;">
+
+    <h2>Old Image (might not work):</h2>
+    <img src="http://localhost:3000/uploads/1753550538259-shopping.jpeg" alt="Old Image" style="border: 2px solid orange; max-width: 300px;">
+
+    <h2>Relative Path Test:</h2>
+    <img src="/uploads/1753550902560-shopping.jpeg" alt="Relative Test" style="border: 2px solid blue; max-width: 300px;">
+
+    <h2>Database Check:</h2>
+    <button onclick="checkDatabase()">Check Database</button>
+    <div id="dbResult"></div>
+
+    <script>
+        // Test if images load
+        const images = document.querySelectorAll('img');
+        images.forEach((img, index) => {
+            img.onload = () => console.log(`✅ Image ${index + 1} loaded: ${img.src}`);
+            img.onerror = () => console.log(`❌ Image ${index + 1} failed: ${img.src}`);
+        });
+
+        async function checkDatabase() {
+            try {
+                const response = await fetch('http://localhost:3000/debug/products');
+                const data = await response.json();
+                document.getElementById('dbResult').innerHTML = `
+                    <h3>Database Contents:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('dbResult').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

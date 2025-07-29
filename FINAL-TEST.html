@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚀 FINAL IMAGE TEST</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-box { border: 3px solid #333; margin: 20px 0; padding: 15px; }
+        .success { border-color: green; background: #e8f5e8; }
+        .error { border-color: red; background: #ffe8e8; }
+        img { max-width: 300px; margin: 10px; border: 2px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>🚀 FINAL IMAGE TEST - DIRECT BACKEND CONNECTION</h1>
+    
+    <div class="test-box">
+        <h2>Test 1: Direct Backend Image</h2>
+        <img id="test1" src="http://localhost:3000/uploads/1753550902560-shopping.jpeg" alt="Direct Backend">
+        <div id="result1">Loading...</div>
+    </div>
+    
+    <div class="test-box">
+        <h2>Test 2: Database Check</h2>
+        <button onclick="checkDB()">Check What's in Database</button>
+        <div id="dbResult">Click button to check database</div>
+    </div>
+    
+    <div class="test-box">
+        <h2>Test 3: All Available Images</h2>
+        <button onclick="loadAllImages()">Load All Images</button>
+        <div id="allImages"></div>
+    </div>
+
+    <script>
+        // Test 1: Direct image loading
+        const img1 = document.getElementById('test1');
+        const result1 = document.getElementById('result1');
+        
+        img1.onload = function() {
+            result1.innerHTML = '✅ SUCCESS! Image loaded perfectly!';
+            result1.parentElement.className = 'test-box success';
+        };
+        
+        img1.onerror = function() {
+            result1.innerHTML = '❌ FAILED! Image could not load';
+            result1.parentElement.className = 'test-box error';
+        };
+        
+        // Test 2: Database check
+        async function checkDB() {
+            try {
+                const response = await fetch('http://localhost:3000/debug/products');
+                const data = await response.json();
+                
+                let html = '<h3>📊 Database Contents:</h3>';
+                
+                // Show products
+                html += '<h4>Products:</h4>';
+                data.products.forEach(user => {
+                    user.products.forEach(product => {
+                        html += `<p>📦 ${product.productName}: <code>${product.productThumbnail}</code></p>`;
+                    });
+                });
+                
+                // Show published
+                html += '<h4>Published:</h4>';
+                data.published.forEach(product => {
+                    html += `<p>🌐 ${product.productName}: <code>${product.productThumbnail}</code></p>`;
+                });
+                
+                document.getElementById('dbResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('dbResult').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+        
+        // Test 3: Load all images
+        async function loadAllImages() {
+            try {
+                const response = await fetch('http://localhost:3000/debug/products');
+                const data = await response.json();
+                
+                let html = '<h3>🖼️ All Images:</h3>';
+                const allThumbnails = new Set();
+                
+                // Collect all thumbnails
+                data.products.forEach(user => {
+                    user.products.forEach(product => {
+                        allThumbnails.add(product.productThumbnail);
+                    });
+                });
+                
+                data.published.forEach(product => {
+                    allThumbnails.add(product.productThumbnail);
+                });
+                
+                // Create image elements for each
+                allThumbnails.forEach(thumbnail => {
+                    html += `
+                        <div style="margin: 10px; padding: 10px; border: 1px solid #ccc;">
+                            <p><strong>${thumbnail}</strong></p>
+                            <img src="http://localhost:3000/uploads/${thumbnail}" 
+                                 alt="${thumbnail}" 
+                                 onload="this.nextElementSibling.innerHTML='✅ LOADED'"
+                                 onerror="this.nextElementSibling.innerHTML='❌ FAILED'">
+                            <div>Loading...</div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('allImages').innerHTML = html;
+            } catch (error) {
+                document.getElementById('allImages').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+        
+        // Auto-run database check
+        setTimeout(checkDB, 1000);
+    </script>
+</body>
+</html>
